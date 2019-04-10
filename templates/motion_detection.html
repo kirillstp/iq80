@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>iq80</title>
+        <!-- <link rel = "stylesheet" href = "../static/styles/style.css/"> -->
+        <script src = "../static/scripts/motion_detection.js" type="module"></script> 
+    </head>
+    <body>
+        <h1>Motion Detection Algorithm User Interface</h1>
+        <h4>"Smart" (iq of 80) home platform</h4>
+        <button type="button" id="start_md">Start</button>
+        <button type="button" id="stop_md">Stop</button>
+        <div>
+            <span>
+                Min Num of Background Images<input id="min_raw_images" type="number" name="Min Num of Background Images">
+                Contour Quality Threshold<input id="quality_threshold" type="number" name ="Contour Quality Threshold">
+                Minimum Contour Area to Highlight<input id="min_contour_area" type="number" name="Minimum Contour Area to Highlight">
+                Gaussian Filter Width<input id="gaussian_filter_area" type="text" name="Gaussian Filter Width">
+                <button type="button" id="apply">Apply</button>
+            </span>
+        </div>
+        <div>
+            <img id="current_raw_image" src='' width="300px"> 
+            <img id="current_thrsh_image" src='' width="300px"> 
+            <img id="current_proc_image" src='' width="500px"> 
+        </div>
+        
+        <div>
+            <span id="raw_image_ribbon">
+            </span>
+        </div>
+    </body>
+</html>
