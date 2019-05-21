@@ -18,20 +18,36 @@ module.exports = {
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"]
+      },
+      {
+        test: /\.(png|jpe?g|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name:'[name].[ext]',
+              publicPath: '/dist'
+            },
+            
+          }
+        ]
       }
+
     ]
   },
-  resolve: { extensions: ["*", ".js", ".jsx"] },
+  resolve: { 
+    extensions: ["*", ".js", ".jsx"] ,
+  },
   output: {
     path: path.resolve(__dirname, "dist/"),
-    publicPath: "/dist/",
     filename: "bundle.js"
   },
   devServer: {
     contentBase: path.join(__dirname, "public/"),
     port: 3000,
-    publicPath: "http://localhost:3000/dist/",
-    hotOnly: true
+    publicPath: "http://localhost:3000/dist",
+    hotOnly: true,
+    historyApiFallback: true
   },
   plugins: [new webpack.HotModuleReplacementPlugin()]
 };

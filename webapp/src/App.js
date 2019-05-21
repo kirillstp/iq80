@@ -10,6 +10,8 @@ import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
 import Button from '@material-ui/core/Button'
 import { withStyles } from "@material-ui/core";
+// routing
+import { Redirect } from 'react-router';
 
 //https://blog.usejournal.com/creating-a-react-app-from-scratch-f3c693b84658
 // Main page of the application
@@ -27,25 +29,15 @@ const styles = {
 		marginLeft: '10%',
 		marginRight: '10%',
 		borderRadius: 15,
-		backgroundColor: "#dbdbdb",
+		backgroundColor: "rgb(255, 255, 255)",
 
-	},
-	'@global': {
-		body: {
-			margin: 0,
-			backgroundColor: "#e8e8e8",
-		}
 	},
 	[`@media (max-width: 960px)`] : {
 		card: {
 			height: window.innerHeight*0.4,
 		}
 	},
-
-
-
 }
-
 
 class App extends Component{
 	constructor(props) {
@@ -63,15 +55,15 @@ class App extends Component{
 				<Grid  className={classes.card_container}
 				       item xs={7} md={6}>
 					<BigFatButton classes={classes}
-								  route='camera'>
-							<p>I AM TEXT</p>
+								  route='/camera'>
+							<p>I AM TEXT BUT I COULD BE AN IMAGE</p>
 					</BigFatButton>
 				</Grid>
 				<Grid className={classes.card_container} 
 				       item xs={7} md={6} >
 					<BigFatButton classes={classes}
-								  route={'sensors'}>
-
+								  route={'/sensors'}>
+								<p>I AM TEXT BUT I COULD BE AN IMAGE</p>
 					</BigFatButton>
 				</Grid>
 			</Grid>
@@ -83,26 +75,35 @@ class BigFatButton extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			buttonShadow: '5px 15px 5px #cecccc',
+			buttonShadow: '0 8px 8px 8px rgba(0, 0, 0, 0.4)',
+			redirect: false
 		};
 		this.buttonPressDown = this.buttonPressDown.bind(this);
-		this.buttonReleased = this.buttonReleased.bind(this)
+		this.buttonReleased = this.buttonReleased.bind(this);
+		this.buttonReleasedWithRoute = this.buttonReleasedWithRoute.bind(this);
 	}
 
 	buttonPressDown(event) {
-		this.setState({buttonShadow: 'inset 5px 15px 5px #cecccc'})
+		this.setState({buttonShadow: 'inset 0 8px 8px 8px rgba(0, 0, 0, 0.4)'})
 	}
 	buttonReleased(event) {
-		this.setState({buttonShadow: '5px 15px 5px #cecccc'})
+		this.setState({buttonShadow: '0 8px 8px 8px rgba(0, 0, 0, 0.4)'})
+	}
+	buttonReleasedWithRoute(event) {
+		this.buttonReleased(event);
+		this.setState({redirect:true})
 	}
 
 	render() {
 		const { classes, route } = this.props;
+		if (this.state.redirect) {
+			return <Redirect push to={route}/>
+		}
 		return(
 			<Card className={classes.card}
 				  style={{boxShadow: this.state.buttonShadow}}
 				  onPointerDown={this.buttonPressDown}
-				  onPointerUp={this.buttonReleased}
+				  onPointerUp={this.buttonReleasedWithRoute}
 				  onPointerLeave={this.buttonReleased}>
 				  {route}
 				{this.props.children}
@@ -115,4 +116,4 @@ App.propTypes = {
 	classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(App); 
+export default withStyles(styles)(App);

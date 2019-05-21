@@ -1,5 +1,13 @@
 import React, { Component } from "react";
 import "../App.css";
+//MUI
+import Header from './shared/header.js'
+
+
+const styles = {
+};
+
+
 
 class Sensors extends Component {
     
@@ -13,9 +21,7 @@ class Sensors extends Component {
 
     render(){
         return(
-          <div>
-            <h1> Sensors </h1>
-          </div>
+          <Header title="Sensors and Environment"></Header>
         );
     }
 }
