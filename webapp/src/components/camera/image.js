@@ -35,13 +35,9 @@ class ImageMain extends Component {
                         alignItems="center">
 
                     <Card className={classes.card}>
-                        <CardMedia
-                            component="img"
-                            alt="Main picture"
-                            className={classes.imageMain}
-                            image={this.props.imageMain}
-                            title={this.props.imageTitle}>
-                        </CardMedia>
+                        <img
+                            src={this.props.imageMain}>
+                        </img>
                     </Card>
                 </Grid>
             </div>

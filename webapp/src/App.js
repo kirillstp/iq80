@@ -48,7 +48,7 @@ class App extends Component{
 	render(){
 		const { classes } = this.props;
 		return(
-			<Grid className={classes.root}
+			<Grid       className={classes.root}
 						container spacing = {0} 
 						justify="center"
 						alignItems="center">

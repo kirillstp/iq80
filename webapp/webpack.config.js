@@ -20,13 +20,13 @@ module.exports = {
         use: ["style-loader", "css-loader"]
       },
       {
-        test: /\.(png|jpe?g|gif)$/,
+        test: /\.(png|jpe?g|gif|'')$/,
         use: [
           {
             loader: 'file-loader',
             options: {
               name:'[name].[ext]',
-              publicPath: '/dist'
+              publicPath: '/dist/'
             },
             
           }

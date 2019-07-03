@@ -21,8 +21,6 @@ var images = (function(){
                     return -1;
                 }
                 that.path = path;
-                var img = document.getElementById(arg.name);
-                img.setAttribute('src', path)
                 return 0;
             };
             that.getImage = function(path) {
@@ -34,29 +32,16 @@ var images = (function(){
             arg.name =  (arg.name === undefined)?"image_ribbon":arg.name;
             var that = imageBase(arg)
             var imageList = [];
-            var imgRibbon = document.getElementById(arg.name);
             that.addImage = function(path) {
-                if (imageList.includes(path)){
-                    return 0
-                }
-                else {
+                if (!imageList.includes(path)){
                     imageList.push(path)
-                    var newImg = document.createElement("img");
-                    newImg.setAttribute("src", path);
-                    newImg.setAttribute("id", path);
-                    newImg.setAttribute("class", "imageribbon--item")
-                    imgRibbon.appendChild(newImg);
                 }
             }
             that.removeImage = function(path) {
                 var ind = imageList.findIndex(function(path) { return path })
                 if (ind > 0){ 
                     delete imageList[ind]
-                    var el = document.getElementById(path);
-                    imgRibbon.removeChild(el)
-                    return 0
                 }
-                return -1
             }
             that.setList = function(list) {
                 if (typeof list.push === undefined ) {
@@ -64,13 +49,13 @@ var images = (function(){
                 }
                 else {
                     imageList = [];
-                    while (imgRibbon.firstChild) {
-                        imgRibbon.removeChild(imgRibbon.firstChild);
-                    }
                     for (var path in list) {
                         that.addImage(path);
                     }
                 }
+            }
+            that.getList = function(list) {
+                return imageList;
             }
             return that;
         }

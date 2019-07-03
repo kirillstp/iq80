@@ -1,14 +1,16 @@
 import os
 import sys
 from flask import Flask, render_template, Response, request
+from flask_cors import CORS, cross_origin
 from pages.motion_detection_page import md_page, clean_up
 import logging 
 from logging.handlers import RotatingFileHandler
 
 
-app = Flask("iq80")
+app = Flask("iq80", static_folder = 'webapp/dist',static_url_path = '/static',  template_folder='webapp/public')
 # Register app blueprints
 app.register_blueprint(md_page, url_prefix='/motion_detection')
+CORS(app, support_credentials = True)
 # app.config['EXPLAIN_TEMPLATE_LOADING'] = True
 
 @app.route('/')
