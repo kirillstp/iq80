@@ -36,16 +36,22 @@ class Camera extends Component {
 		constructor(props) {
 			super(props);
 
-			this.toggleMotionDetection = this.toggleMotionDetection.bind(this);
-			this.tickDev = this.tickDev.bind(this)
+			// Excessive. I should really consider arrow functions.
 			this.tick = this.tick.bind(this);
+			this.tickDev = this.tickDev.bind(this)
+			this.updated = this.updated.bind(this);
 			this.setImage = this.setImage.bind(this);
+			this.getSettings = this.getSettings.bind(this);
+			this.applySettings = this.applySettings.bind(this);
+			this.consumeUpdated = this.consumeUpdated.bind(this);
 			this.openVideoDialog = this.openVideoDialog.bind(this);
-			this.closeVideoDialog = this.closeVideoDialog.bind(this);
+			this.closeVideoDialog = this.closeVideoDialog.bind(this);		
 			this.openSettingsDialog = this.openSettingsDialog.bind(this);
 			this.closeSettingsDialog = this.closeSettingsDialog.bind(this);
+			this.toggleMotionDetection = this.toggleMotionDetection.bind(this);
+		
 
-			window.setInterval(this.tickDev,1500);
+			window.setInterval(this.tick, 2500);
 			this.motionDetectionController = MotionDetectionCtrlr;
 			
 			this.state = {
@@ -59,22 +65,30 @@ class Camera extends Component {
 		}
 
 		toggleMotionDetection(val) {
-			this.setState({detectMotion: val})
+			if (val == false) {
+				this.motionDetectionController.stop();
+			}
+			else if (val == true) {
+				this.motionDetectionController.start();
+			}
 		}
 
 		tick(){
-			var url = '/motion_detection/tick';
-			self = this;
-			var callback = function(response){
-				self.motionDetectionController.updateImagesDev();
-			}
-			utils.httpGetAsync(url, callback);
+			this.motionDetectionController.tick();
 			this.setState({update: true})
 		}
 
 		tickDev(){
 			this.motionDetectionController.updateImagesDev(proc_images);
 			this.setState({update: true})
+		}
+
+		updated() {
+			return this.motionDetectionController.updated
+		}
+
+		consumeUpdated() {
+			this.motionDetectionController.useUpdatedFlag()
 		}
 
 		setImage(image) {
@@ -97,6 +111,18 @@ class Camera extends Component {
 			this.setState({settingsDialog:false})
 		}
 
+		getSettings(){
+			var result = this.motionDetectionController.getSettings()
+			if (typeof(result) == 'object') {
+				return result
+			}
+			return -1
+		}
+
+		applySettings(values){
+			return this.motionDetectionController.applySettings(values)
+		}
+
 		render(){
 				const { classes } = this.props;
 				return(
@@ -112,12 +138,14 @@ class Camera extends Component {
 								Settings
 							</Button>
 							<SettingsDialog openSettingsDialog = {this.state.settingsDialog}
-										    closeSettingsDialog = {this.closeSettingsDialog}>
+										    closeSettingsDialog = {this.closeSettingsDialog}
+											getSettingsCallback = {this.getSettings}
+											applySettingsCallback = {this.applySettings}>
 							</SettingsDialog>
 							<ToggleButton className={classes.button}
-										  defaultState={this.state.detectMotion}
+										  defaultState={this.motionDetectionController.active}
 										  toggleMethod={this.toggleMotionDetection}>
-								Motion Detection: {this.state.detectMotion?"On":"Off"}
+								Motion Detection: {this.motionDetectionController.active?"On":"Off"}
 							</ToggleButton>
 							<Button className={classes.button}
 									variant="contained"
@@ -137,7 +165,9 @@ class Camera extends Component {
 						<Divider variant="middle" />
 						<ImageRibbon
 							imageRibbon = {this.state.imageList.getList()}
-							setMainImageCallback = {this.setImage}>
+							setMainImageCallback = {this.setImage}
+							updated = {this.updated}
+							consumeUpdatedFlagCallback = {this.consumeUpdated}>
 						</ImageRibbon>
 					</div>
 				);

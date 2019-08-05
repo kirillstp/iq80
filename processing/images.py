@@ -61,6 +61,7 @@ class ImageCollection:
             os.mkdir(self._path)
         else:
             files = os.listdir(self._path)
+            files.sort()
             for f in files:
                 self.add(f)
 

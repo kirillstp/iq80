@@ -33,7 +33,6 @@ class ImageMain extends Component {
                         container spacing = {0} 
                         justify="center"
                         alignItems="center">
-
                     <Card className={classes.card}>
                         <img
                             src={this.props.imageMain}>

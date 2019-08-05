@@ -10,6 +10,8 @@ import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
 import Button from '@material-ui/core/Button'
 import { withStyles } from "@material-ui/core";
+import BurstModeIcon from "@material-ui/icons/BurstMode"
+import DeviceHubIcon from "@material-ui/icons/DeviceHub"
 // routing
 import { Redirect } from 'react-router';
 
@@ -19,6 +21,27 @@ import { Redirect } from 'react-router';
 const styles = {
 	root: {
 		height: window.innerHeight,
+	},
+	title: {
+		fontSize: 38,
+		color: '#474646',
+		fontFamily: "monospace",
+		margin:"0",
+		fontWeight: "bold",
+		position: "absolute",
+		left: "30%",
+		top:"5%"
+	},
+	icon: {
+		fontSize: 450,
+		color: '#474646',
+	},
+	buttonLabel: {
+		fontSize: 32,
+		marginBottom: '0%',
+		color: '#474646',
+		fontFamily: "monospace",
+		fontWeight: "bold"
 	},
 	card_container: {
 		minWidth: 400,
@@ -30,7 +53,6 @@ const styles = {
 		marginRight: '10%',
 		borderRadius: 15,
 		backgroundColor: "rgb(255, 255, 255)",
-
 	},
 	[`@media (max-width: 960px)`] : {
 		card: {
@@ -48,6 +70,8 @@ class App extends Component{
 	render(){
 		const { classes } = this.props;
 		return(
+			<div>
+			<p className={classes.title}> iq80 - Barely Smart Home Controller </p>
 			<Grid       className={classes.root}
 						container spacing = {0} 
 						justify="center"
@@ -56,17 +80,20 @@ class App extends Component{
 				       item xs={7} md={6}>
 					<BigFatButton classes={classes}
 								  route='/camera'>
-							<p>I AM TEXT BUT I COULD BE AN IMAGE</p>
+							<p className={classes.buttonLabel}> Motion Detection and Video </p>
+							<BurstModeIcon className={classes.icon}></BurstModeIcon>
 					</BigFatButton>
 				</Grid>
 				<Grid className={classes.card_container} 
 				       item xs={7} md={6} >
 					<BigFatButton classes={classes}
 								  route={'/sensors'}>
-								<p>I AM TEXT BUT I COULD BE AN IMAGE</p>
+								<p className={classes.buttonLabel}> Sensors and Devices (Coming Soon!) </p>
+								<DeviceHubIcon className={classes.icon}></DeviceHubIcon>
 					</BigFatButton>
 				</Grid>
 			</Grid>
+			</div>
 		);
 	}
 }
@@ -105,7 +132,6 @@ class BigFatButton extends Component {
 				  onPointerDown={this.buttonPressDown}
 				  onPointerUp={this.buttonReleasedWithRoute}
 				  onPointerLeave={this.buttonReleased}>
-				  {route}
 				{this.props.children}
 			</Card>
 		)

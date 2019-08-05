@@ -33,6 +33,10 @@ var images = (function(){
             var that = imageBase(arg)
             var imageList = [];
             that.addImage = function(path) {
+                // 1000 is hardcoded in settings. To Do: let it be configurable
+                if (imageList.length > 1000) {
+                    imageList.shift()
+                }
                 if (!imageList.includes(path)){
                     imageList.push(path)
                 }

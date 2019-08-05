@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, render_template, url_for, request
-from flask-cors import CORS, cross_origin
+from flask_cors import CORS, cross_origin
 from processing import MotionDetection
 from constants import *
 
@@ -32,7 +32,7 @@ def stop_algorithm():
 @md_page.route('/update_images')
 @cross_origin(support_credentials = True)
 def update_images():
-    response = {'data':{}, 'code': 0}
+    response = {'data':{}, 'code': 0, 'updated': md.new_data}
     # if len(md.raw_image_list) > 0:
     #     response['data']['current_raw_image'] = url_for('webapp',filename="static/raw_images/{}".format(md.raw_image_list[-1]))
     # else:
@@ -52,6 +52,7 @@ def update_images():
 def tock():
     response = {}
     response['code'] = HTTP_SUCCESS
+    response['status'] = md.running
     return json.dumps(response)
 
 @md_page.route('/download_raw_images')

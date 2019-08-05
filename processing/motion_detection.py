@@ -14,6 +14,11 @@ class MotionDetection():
     PROC_SAVE_DIR = 'processed_images'
     THRSH_SAVE_DIR = 'thresholded_images'
     BGN_SAVE_DIR = 'bgn_images'
+    IMAGE_TEXT_FONT = cv2.FONT_HERSHEY_SIMPLEX
+    IMAGE_TEXT_POS = (20,20) # top left corner
+    IMAGE_TEXT_SCALE = 0.6
+    IMAGE_TEXT_COLOR = (212, 17, 82)
+    IMAGE_TEXT_LW = 2
     def __init__(self):
         # import pdb;pdb.set_trace()
         self.logger  = logging.getLogger("iq80.motion_detection")
@@ -31,16 +36,17 @@ class MotionDetection():
         self.seconds_per_loop = 0.5 # minimum seconds between start of new image
         self.algorithm_execution_time = []
         # algorithm configuration
-        self.quality_threshold = 50
+        self.quality_threshold = 35
         self.min_contour_area = 500
         self.lock = threading.Lock()
-        self.binary_threshold = 0 
+        self.binary_threshold = 0
         self.run = False
-        self.gaussian_filter_area = (5,5)
+        self.gaussian_filter_area = (5 , 5)
+        self.new_data = False
 
     def set_settings(self, min_raw_images, quality_threshold, min_contour_area, gaussian_filter_area):
         self.lock.acquire()
-        print("Setting settings. min_raw_images: {}, quality_threshold: {}, min_contour_area: {}, gaussian_filter: {}")
+        print("Setting settings. min_raw_images: {}, quality_threshold: {}, min_contour_area: {}, gaussian_filter: {}".format(min_raw_images, quality_threshold, min_contour_area, gaussian_filter_area))
         self.quality_threshold = int(quality_threshold)
         self.min_contour_area = int(min_contour_area)
         self.raw_images = ImageCollection('raw_images', self.raw_images.path, limit = int(min_raw_images))
@@ -64,7 +70,7 @@ class MotionDetection():
         self.camera.clean_up()
     
     def set_consistent_capture(self):
-        self.camera.iso = 200
+        self.camera.iso = 300
         self.camera.shutter_speed = self.camera.exposure_speed
         self.camera.turn_off_exposure_mode()
         self.camera.turn_off_awb()
@@ -77,6 +83,11 @@ class MotionDetection():
 
     def stop(self):
         self.run = False
+        self.new_data = False
+
+    @property
+    def running(self):
+        return self.run
 
     @property
     def raw_image_list(self):
@@ -113,15 +124,21 @@ class MotionDetection():
             # print("Starting cycle")
             start = datetime.datetime.now()
             self.raw_images.add(self.camera.capture()) # add image to the raw collection
+            raw_image_array = cv2.imread(self.raw_images[-1]) # raw image to overlay datetime on and save as processed.
             if bgn_image_ready:
-                raw_image_array_gs = cv2.imread(self.raw_images[-1], cv2.CV_8U) 
+                raw_image_array_gs = cv2.imread(self.raw_images[-1], cv2.CV_8U) # raw image gray scaled for processing
                 difference_frame = cv2.absdiff(raw_image_array_gs, bgn_image_array_gs) # get difference between new raw image and bgn image
                 processed_image, quality = self._detect_contours(difference_frame, raw_image_array_gs.copy())
                 if quality < self.quality_threshold: 
                     name = start.strftime("%Y%m%d%H%M%S")
+                    label = start.strftime("%Y-%m-%d %H:%M:%S")
+                    self.new_data = True
+                    print("New file")
                     img_path = self.proc_images.add(name)
+                    self._write_img(img_path, self._label_image(raw_image_array, label))
                     print("Saving processed image to {}".format(img_path))
-                    self._write_img(img_path, processed_image) # add() function returns full path to the file
+                else:
+                    self.new_data = False
             # print("Length of raw images: {}".format(self.raw_images.count))
             if self.raw_images.full:
                 # Wait until raw image collection is full to calculate background image
@@ -172,3 +189,7 @@ class MotionDetection():
     def _write_img(self, img_path, img):
         cv2.imwrite(img_path +'.png', img) # open cv needs an extension to compress image
         os.rename(img_path + '.png', img_path) # delete extension since app does not support them.
+
+    def _label_image(self, image, text):
+        cv2.putText(image, text, self.IMAGE_TEXT_POS, self.IMAGE_TEXT_FONT, self.IMAGE_TEXT_SCALE, self.IMAGE_TEXT_COLOR, self.IMAGE_TEXT_LW)
+        return image

@@ -1,6 +1,6 @@
 import os
 import sys
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, redirect, url_for
 from flask_cors import CORS, cross_origin
 from pages.motion_detection_page import md_page, clean_up
 import logging 
@@ -17,6 +17,9 @@ CORS(app, support_credentials = True)
 def index():
     return render_template("index.html")
 
+@app.route('/camera')
+def redirect_to_index():
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     file_handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=3)        

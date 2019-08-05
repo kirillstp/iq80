@@ -27,7 +27,7 @@ class VideoDialog extends Component {
             <Dialog onClose={this.props.closeVideoDialog}
                     open={this.props.openVideoDialog}>
                 <DialogContent>
-                    Test
+                    COMING SOON!!!
                 </DialogContent>
                 <DialogActions>
                     <Button onClick = {this.props.closeVideoDialog}>

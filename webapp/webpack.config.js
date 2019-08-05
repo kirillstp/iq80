@@ -4,7 +4,7 @@ const webpack = require("webpack");
 module.exports = {
   entry: "./src/index.js",
   mode: "development",
-  devtool: "eval-source-map",
+  // devtool: "eval-source-map",
   module: {
     rules: [
       {
@@ -20,7 +20,7 @@ module.exports = {
         use: ["style-loader", "css-loader"]
       },
       {
-        test: /\.(png|jpe?g|gif|'')$/,
+        test: /\.(png|jpe?g|gif|ico|'')$/,
         use: [
           {
             loader: 'file-loader',
@@ -49,5 +49,5 @@ module.exports = {
     hotOnly: true,
     historyApiFallback: true
   },
-  plugins: [new webpack.HotModuleReplacementPlugin()]
+  // plugins: [new webpack.HotModuleReplacementPlugin()]
 };

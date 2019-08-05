@@ -10,20 +10,15 @@ var MotionDetectionCtrlr = (function() {
         // var heartbeat = setInterval(tick, 1500);
         var currentImage= images.currentImage({name:"current_proc_image"});
         var imageRibbon = images.imageRibbon({name:"proc_image_ribbon"});
-        var updated = false
+        var algorithmSettings = false;
+        var updated = false;
+        var active = false;
 
         return {
-            // getSettings: function() {
-            //     var url = '/motion_detection/get_settings';
-            //     var callback = function(response){
-            //         var data = JSON.parse(JSON.parse(response)['data']);
-            //         for (var key in Object.keys(data)) {
-            //             var p_name = Object.keys(data)[key];
-            //         }
-            //     }
-            //     utils.httpGetAsync(url, callback);
-            // },
+            active,
             updated,
+            algorithmSettings,
+
             setCurrentImageObject: function(path) {
                 currentImage.setImage(path);
             },
@@ -45,9 +40,8 @@ var MotionDetectionCtrlr = (function() {
                     for (var file in procImgList) {
                         imageRibbon.addImage(procImgList[file]);
                     }
+                    self.updated = JSON.parse(response)['updated']
                     currentImage.setImage(procImgList[procImgList.length - 1])
-                    // myCurrentThrshImage.setImage(JSON.parse(response)['data']['current_thrsh_image'])
-                    // myCurrentRawImage.setImage(JSON.parse(response)['data']['current_raw_image'])
                 }
                 utils.httpGetAsync(url, callback);
             },
@@ -58,13 +52,17 @@ var MotionDetectionCtrlr = (function() {
                 }
                 currentImage.setImage(context(context.keys()[context.keys().length - 1]))
             },
-
+            
+            useUpdatedFlag: function() {
+                self.updated = false
+            },
 
             tick: function() {
                 var url = '/motion_detection/tick';
                 self = this;
                 var callback = function(response){
-                    updateImages();
+                    self.updateImages();
+                    self.active = JSON.parse(response)['status']
                     if (self.firstRun) {
                         getSettings();
                         self.firstRun = false;
@@ -74,35 +72,75 @@ var MotionDetectionCtrlr = (function() {
                 utils.httpGetAsync(url, callback);
             },
 
-            start: function() {
-                window.setInterval(this.tick, 1500)
+            start: function () {
+                var url = '/motion_detection/start_algorithm'
+                self.active = true;
+                var callback = function(response){}
+                utils.httpGetAsync(url, callback);
+            },
+    
+            stop: function() {
+                var url = '/motion_detection/stop_algorithm'
+                active = false;
+                var callback = function(response){}
+                utils.httpGetAsync(url, callback);
+            },
+    
+            applySettings: function(settings) {
+                for (var setting of ['min_raw_images', 'quality_threshold',
+                                     'min_contour_area', 'gaussian_filter_area']) {
+                    if (Object.keys(settings).indexOf(setting) < 0){
+                        return -1
+                    }
+                }
+                self = this;
+                var url = '/motion_detection/set_settings'
+                url += '?data='+JSON.stringify(settings);
+                var callback = function(response){
+                    self.getSettingsFromServer();
+                }
+                utils.httpGetAsync(url, callback);
             },
 
-            onStartButton: function () {
-                var url = '/motion_detection/start_algorithm'
-                var callback = function(response){}
-                utils.httpGetAsync(url, callback);
+
+            getSettings: function() {
+                if (this.algorithmSettings == false) {
+                    this.getSettingsFromServer();
+                    return false
+                }
+                else {
+                    return this.algorithmSettings
+                }
             },
-    
-            onStopButton: function() {
-                var url = '/motion_detection/stop_algorithm'
-                var callback = function(response){}
-                utils.httpGetAsync(url, callback);
-            },
-    
-            onSettingsApplyButton: function() {
-                var url = '/motion_detection/set_settings'
-                var settings = {'min_raw_images': 0, 
-                                'quality _threshold': 0, 
+
+            getSettingsFromServer: function() {
+                var url = '/motion_detection/get_settings';
+                this.algorithmSettings = {'min_raw_images': 0, 
+                                'quality_threshold': 0, 
                                 'min_contour_area': 0,
                                 'gaussian_filter_area': 0}
-                for (var param in Object.keys(settings)) {
-                    var p_name = Object.keys(settings)[param];
-                    // settings[p_name] = document.getElementById(p_name).value;
+                self = this;
+                var callback = function(response){
+                    var data = JSON.parse(JSON.parse(response)['data']);
+                    for (var key of Object.keys(data)) {
+                        if (self.algorithmSettings.hasOwnProperty(key)){
+                            self.algorithmSettings[key] = data[key];
+                        }
+                        else {
+                            return -1
+                        }
+                    }
                 }
-                url += '?data='+JSON.stringify(settings);
-                var callback = function(response){}
                 utils.httpGetAsync(url, callback);
+
+            },
+
+            getSettingsDev: function() {
+                var defaults = {'min_raw_images': 5, 
+                                'quality_threshold': 50, 
+                                'min_contour_area': 500,
+                                'gaussian_filter_area': 5}
+                return defaults
             },
         }
     }
