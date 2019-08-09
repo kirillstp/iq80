@@ -78,7 +78,7 @@ var MotionDetectionCtrlr = (function() {
                 var callback = function(response){}
                 utils.httpGetAsync(url, callback);
             },
-    
+
             stop: function() {
                 var url = '/motion_detection/stop_algorithm'
                 active = false;

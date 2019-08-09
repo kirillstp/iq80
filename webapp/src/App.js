@@ -14,6 +14,8 @@ import BurstModeIcon from "@material-ui/icons/BurstMode"
 import DeviceHubIcon from "@material-ui/icons/DeviceHub"
 // routing
 import { Redirect } from 'react-router';
+import { utils } from './scripts/utils.js';
+
 
 //https://blog.usejournal.com/creating-a-react-app-from-scratch-f3c693b84658
 // Main page of the application
@@ -64,9 +66,34 @@ const styles = {
 class App extends Component{
 	constructor(props) {
 		super(props);
+		this.handlePassKey = this.handlePassKey.bind(this);
 		this.state = {
+			locked: true,
+			authArr: []
+		};
+		
+	}
+
+	handlePassKey(event) {
+		this.state.authArr.push(event.keyCode)
+		console.log(this.state.authArr);
+		if (this.state.authArr.length == 10){ 
+			var keycode = this.state.authArr.join(',')
+			var url = '/auth?keycode='+keycode;
+			self = this;
+			var callback = function(response){
+				self.setState({locked:  JSON.parse(response)['locked']})
+			}
+			utils.httpGetAsync(url, callback);
+			this.setState({authArr:[]})
 		}
 	}
+
+	componentDidMount() {
+		document.addEventListener("keydown", this.handlePassKey, false)
+	}
+
+
 	render(){
 		const { classes } = this.props;
 		return(
@@ -79,7 +106,8 @@ class App extends Component{
 				<Grid  className={classes.card_container}
 				       item xs={7} md={6}>
 					<BigFatButton classes={classes}
-								  route='/camera'>
+								  route='/camera'
+								  disabled={this.state.locked}>
 							<p className={classes.buttonLabel}> Motion Detection and Video </p>
 							<BurstModeIcon className={classes.icon}></BurstModeIcon>
 					</BigFatButton>
@@ -87,7 +115,8 @@ class App extends Component{
 				<Grid className={classes.card_container} 
 				       item xs={7} md={6} >
 					<BigFatButton classes={classes}
-								  route={'/sensors'}>
+								  route={'/sensors'}
+								  disabled={this.state.locked}>
 								<p className={classes.buttonLabel}> Sensors and Devices (Coming Soon!) </p>
 								<DeviceHubIcon className={classes.icon}></DeviceHubIcon>
 					</BigFatButton>
@@ -117,7 +146,11 @@ class BigFatButton extends Component {
 		this.setState({buttonShadow: '0 8px 8px 8px rgba(0, 0, 0, 0.4)'})
 	}
 	buttonReleasedWithRoute(event) {
+		
 		this.buttonReleased(event);
+		if (this.props.disabled===true) {
+			return -1
+		}
 		this.setState({redirect:true})
 	}
 

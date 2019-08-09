@@ -11,6 +11,7 @@
   "author": "Kirill",
   "license": "ISC",
   "devDependencies": {
+    
     "@babel/cli": "^7.4.3",
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
@@ -27,6 +28,7 @@
     "webpack-dev-server": "^3.3.1"
   },
   "dependencies": {
+    "lodash": ">=4.17.13",
     "@material-ui/core": "^3.9.3",
     "@material-ui/icons": "^3.0.2",
     "@material-ui/lab": "^3.0.0-alpha.30",
