@@ -13,11 +13,11 @@ class _Camera(object):
     NO_CAMERA_WARNING = "No Camera Initialized. Command had no effect."
     def __init__(self, output_dir = "/home/pi/Projects/iq80/static/raw_images"):
         self.logger  = logging.getLogger("iq80")
-        self.logger.info("Initializing server...")
+        self.logger.info("Initializing camera controller...")
         try:
             self.camera = picamera.PiCamera()
             self.camera.resolution = (640, 480)
-            self.camera.rotation = 180
+            self.camera.rotation = 0
         except picamera.exc.PiCameraMMALError:
             self.camera = None
             self.logger.error("Camera already initialized on a different instance. Cannot run.")
@@ -51,7 +51,6 @@ class _Camera(object):
     
     @iso.setter
     def iso(self, value):
-        self.logger.info("{}: Setting iso to {}".format(self.NAME, value))
         self.camera.iso = value
         time.sleep(2)
 

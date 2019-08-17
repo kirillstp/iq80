@@ -9,7 +9,9 @@ from collections import OrderedDict
 from .images import ImageCollection
 from modules import get_camera
 
-class MotionDetection():
+md = None
+
+class _MotionDetection():
     RAW_SAVE_DIR = 'raw_images'
     PROC_SAVE_DIR = 'processed_images'
     THRSH_SAVE_DIR = 'thresholded_images'
@@ -21,8 +23,8 @@ class MotionDetection():
     IMAGE_TEXT_LW = 2
     def __init__(self):
         # import pdb;pdb.set_trace()
-        self.logger  = logging.getLogger("iq80.motion_detection")
-        self.logger.info("Starting motion detection module...")
+        self.logger  =  logging.getLogger('iq80')
+        self.logger.info("Starting motion detection processing module...")
         raw_image_path = os.path.join(os.getcwd(),"webapp","dist", self.RAW_SAVE_DIR)  
         proc_image_path = os.path.join(os.getcwd(),"webapp","dist", self.PROC_SAVE_DIR)  
         bgn_image_path = os.path.join(os.getcwd(),"webapp", "dist",self.BGN_SAVE_DIR)  
@@ -45,8 +47,8 @@ class MotionDetection():
         self.new_data = False
 
     def set_settings(self, min_raw_images, quality_threshold, min_contour_area, gaussian_filter_area):
+        self.logger.info("Setting settings. min_raw_images: {}, quality_threshold: {}, min_contour_area: {}, gaussian_filter: {}".format(min_raw_images, quality_threshold, min_contour_area, gaussian_filter_area))
         self.lock.acquire()
-        print("Setting settings. min_raw_images: {}, quality_threshold: {}, min_contour_area: {}, gaussian_filter: {}".format(min_raw_images, quality_threshold, min_contour_area, gaussian_filter_area))
         self.quality_threshold = int(quality_threshold)
         self.min_contour_area = int(min_contour_area)
         self.raw_images = ImageCollection('raw_images', self.raw_images.path, limit = int(min_raw_images))
@@ -63,7 +65,6 @@ class MotionDetection():
 
     def capture(self):
         filename = self.camera.capture()
-        print("Image saved {}".format(filename))
         return filename
 
     def clean_up(self):
@@ -76,9 +77,11 @@ class MotionDetection():
         self.camera.turn_off_awb()
 
     def start(self):
+        self.logger.info("Initializing camera...")
         self.set_consistent_capture()
         self.run = True
         process = threading.Thread(name="md_process", target = self._motion_detection)
+        self.logger.info("Starting process in its own thread...")
         process.start()
 
     def stop(self):
@@ -103,7 +106,7 @@ class MotionDetection():
 
     @property
     def bgn_image_list(self):
-        print("Num bgn images {}".format(len(self.bgn_image.imlist)))
+        # print("Num bgn images {}".format(len(self.bgn_image.imlist)))
         return self.bgn_image.imlist
 
     def archive_raw_images(self):
@@ -117,6 +120,7 @@ class MotionDetection():
         Main algorithm. Calculates difference between raw images and background image.
         Based on instance variable quality_threshold it will decide if there is motion or not.
         '''
+        self.logger.info("Motion detection process started...")
         bgn_image_array_gs = []
         bgn_image_ready = False
         while self.run:
@@ -124,20 +128,23 @@ class MotionDetection():
             # print("Starting cycle")
             start = datetime.datetime.now()
             self.raw_images.add(self.camera.capture()) # add image to the raw collection
+            self.logger.info("Captured image...")
             raw_image_array = cv2.imread(self.raw_images[-1]) # raw image to overlay datetime on and save as processed.
             if bgn_image_ready:
+                self.logger.info("Background image assembled. Processing ...")
                 raw_image_array_gs = cv2.imread(self.raw_images[-1], cv2.CV_8U) # raw image gray scaled for processing
                 difference_frame = cv2.absdiff(raw_image_array_gs, bgn_image_array_gs) # get difference between new raw image and bgn image
                 processed_image, quality = self._detect_contours(difference_frame, raw_image_array_gs.copy())
                 if quality < self.quality_threshold: 
+                   
                     name = start.strftime("%Y%m%d%H%M%S")
                     label = start.strftime("%Y-%m-%d %H:%M:%S")
                     self.new_data = True
-                    print("New file")
                     img_path = self.proc_images.add(name)
                     self._write_img(img_path, self._label_image(raw_image_array, label))
-                    print("Saving processed image to {}".format(img_path))
+                    self.logger.info("Saving new image to {}".format(img_path))
                 else:
+                    self.logger.info("No new image. Continue...")
                     self.new_data = False
             # print("Length of raw images: {}".format(self.raw_images.count))
             if self.raw_images.full:
@@ -187,9 +194,15 @@ class MotionDetection():
         return result
 
     def _write_img(self, img_path, img):
-        cv2.imwrite(img_path +'.png', img) # open cv needs an extension to compress image
-        os.rename(img_path + '.png', img_path) # delete extension since app does not support them.
+        cv2.imwrite(img_path +'.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 95]) # open cv needs an extension to compress image
+        os.rename(img_path + '.jpg', img_path) # delete extension since app does not support them.
 
     def _label_image(self, image, text):
         cv2.putText(image, text, self.IMAGE_TEXT_POS, self.IMAGE_TEXT_FONT, self.IMAGE_TEXT_SCALE, self.IMAGE_TEXT_COLOR, self.IMAGE_TEXT_LW)
         return image
+
+def get_md():
+    global md
+    if not md:
+        md = _MotionDetection()
+    return md

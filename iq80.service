@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve iq80
+After=network.target
+
+[Service]
+user = pi
+group = www-data
+WorkingDirectory = /home/pi/Projects/iq80
+Environment="PATH=/home/pi/Projects/iq80/py3env/bin"
+ExecStart=/home/pi/Projects/iq80/py3env/bin/uwsgi --ini iq80.ini
+
+[Install]
+WantedBy=multi-user.target
