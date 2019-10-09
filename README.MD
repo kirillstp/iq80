@@ -1,6 +1,9 @@
 
 Smart home framework for RPi camera, ESP8266 and Arduino (with WiFi shield) driven sensors. Currently only motion detection camera has been implemented. 
 
+Project can be deployed on the web (although security is lacking at the moment) or locally. Project is built using Python's Flask and React. Deployment is on uWSGI/NGINX server.
+
+
 Requirements:
 - Raspberry pi with picamera module
 - Python 3.5 with virtual environment tools
