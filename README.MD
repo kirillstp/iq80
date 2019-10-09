@@ -1,9 +1,11 @@
 
+Smart home framework for RPi camera, ESP8266 and Arduino (with WiFi shield) driven sensors. Currently only motion detection camera has been implemented. 
+
 Requirements:
 - Raspberry pi with picamera module
 - Python 3.5 with virtual environment tools
 
-TO DEPLOY THE APPLICATION:
+To deploy:
 - Create the virtual environment with python >=3.5.
 - Copy project excluding webapp folder
 - Copy webapp/dist and webapp/public folders 
