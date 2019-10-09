@@ -16,6 +16,7 @@ To deploy:
 - Run configure.sh - install pip requirments
 - Verify that uwsgi was correctly installed by running uswgi command - check binary address which should point ot /your/virtual/environment/bin/uwsgi
 - Copy iq80.service to /etc/systemd/system/ to run application on start up
-- Copy iq80.ini to the project directory: to start uwsgi server run uwsgi --ini iq80.ini - NOTE: at this point its serving unreadable data. Configure nginx to continue
+- Copy iq80.ini to the project directory: to start uwsgi server run uwsgi --ini iq80.ini
+- Configure nginx to work with uwsgi server. 
 
 
